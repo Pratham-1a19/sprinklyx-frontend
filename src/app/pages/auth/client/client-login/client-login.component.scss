@@ -1,0 +1,63 @@
+.branded-bg {
+    background-image: url("/assets/media/images/2600x1600/1.png");
+}
+.dark .branded-bg {
+    background-image: url("/assets/media/images/2600x1600/1-dark.png");
+}
+
+/* You can add global styles to this file, and also import other style files */
+
+/* ========================================
+   GLOBAL FORM VALIDATION STYLES
+   ======================================== */
+
+// Global input error styling for KT UI components
+.kt-input-error,
+.kt-input.kt-input-error,
+input.kt-input-error {
+    border-color: #ef4444 !important;
+    border-width: 1px !important;
+    box-shadow: 0 0 0 1px #ef4444 !important;
+}
+
+.kt-input.kt-input-error:focus,
+.kt-input.kt-input-error:focus-within,
+input.kt-input-error:focus {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+}
+
+// For composite inputs (password fields, etc.)
+.kt-input.kt-input-error {
+    border: 1px solid #ef4444 !important;
+}
+
+// Global form message styling
+.kt-form-message {
+    color: #ef4444 !important;
+    font-size: 0.875rem !important;
+    margin-top: 0.25rem !important;
+    display: block !important;
+}
+
+// Global form description styling
+.kt-form-description {
+    color: #6b7280 !important;
+    font-size: 0.875rem !important;
+    margin-top: 0.25rem !important;
+    display: block !important;
+}
+
+// Global form structure styling
+.kt-form-item {
+    margin-bottom: 1.5rem !important;
+}
+
+.kt-form-actions {
+    margin-top: 2rem !important;
+}
+
+// Additional error state for Tailwind fallback
+.border-red-500 {
+    border-color: #ef4444 !important;
+}

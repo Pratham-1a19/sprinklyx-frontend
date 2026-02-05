@@ -91,7 +91,13 @@
               }
             ],
             "styles": [
-              "src/styles.scss"
+              "src/tailwind.css",
+              "src/styles.scss",
+              "public/assets/vendors/apexcharts/apexcharts.css",
+              "public/assets/vendors/keenicons/styles.bundle.css",
+              "public/assets/vendors/@form-validation/index.min.css",
+              "public/assets/vendors/leaflet/leaflet.bundle.css",
+              "public/assets/css/styles.css"
             ],
             "scripts": []
           }
