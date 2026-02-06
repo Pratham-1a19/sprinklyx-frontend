@@ -1,115 +1,68 @@
-<!-- <div class="h-screen flex bg-[#F8FAFD]">
+<div class="h-screen flex bg-[#F8FAFD]">
+  <app-sidebar class="hidden md:block h-full"></app-sidebar>
 
-  <aside class="hidden md:flex flex-col w-64 bg-white border-r p-4">
+  <div class="flex-1 flex flex-col min-w-0">
+    <app-header [viewMode]="viewMode" (viewModeChange)="setViewMode($event)"
+      class="kt-header h-16 z-10 flex items-center bg-background border-b border-border px-6 sticky top-0">
+    </app-header>
 
-    <h1 class="text-xl font-semibold mb-6">Drive</h1>
-
-    <button
-      class="flex items-center gap-3 bg-white shadow-md hover:shadow-lg transition rounded-full px-5 py-3 mb-6 border">
-      <span class="text-2xl">+</span>
-      <span class="font-medium">New</span>
-    </button>
-
-    <nav class="space-y-1 flex-1">
-
-      <div class="bg-blue-100 text-blue-700 px-4 py-2 rounded-full font-medium">
-        My Drive
-      </div>
-
-      <div class="hover:bg-gray-100 px-4 py-2 rounded-full cursor-pointer">
-        Shared with me
-      </div>
-
-      <div class="hover:bg-gray-100 px-4 py-2 rounded-full cursor-pointer">
-        Recent
-      </div>
-
-      <div class="hover:bg-gray-100 px-4 py-2 rounded-full cursor-pointer">
-        Starred
-      </div>
-
-      <div class="hover:bg-gray-100 px-4 py-2 rounded-full cursor-pointer">
-        Trash
-      </div>
-
-    </nav>
-
-    <div>
-      <p class="text-sm mb-2">Storage</p>
-
-      <div class="w-full bg-gray-200 h-2 rounded-full">
-        <div class="bg-blue-500 h-2 rounded-full w-2/3"></div>
-      </div>
-
-      <p class="text-xs text-gray-500 mt-2">
-        10 GB of 15 GB used
-      </p>
-    </div>
-
-  </aside>
-
-
-  <div class="flex-1 flex flex-col">
-
-    <header class="bg-white border-b px-6 py-3 flex items-center justify-between">
-
-      <div class="flex-1 max-w-2xl">
-        <input
-          placeholder="Search in Drive"
-          class="w-full bg-gray-100 focus:bg-white transition shadow-sm focus:shadow-md rounded-full py-3 px-5 outline-none"
-        />
-      </div>
-
-      <img
-        src="https://i.pravatar.cc/40"
-        class="w-10 h-10 rounded-full border ml-4"
-      />
-
-    </header>
+    <!-- <header app-header class="kt-header fixed top-0 z-10 start-0 end-0 flex items-stretch shrink-0 bg-background" data-kt-sticky="true" data-kt-sticky-class="border-b border-border" data-kt-sticky-name="header" id="header"></header> -->
 
     <main class="p-6 overflow-auto flex-1">
-
-      <h2 class="text-lg font-semibold mb-4">
-        Suggested
-      </h2>
-
-      <div class="flex gap-4 mb-8 overflow-x-auto">
-
-        <div
-          *ngFor="let file of suggested"
-          class="min-w-[220px] bg-white rounded-2xl shadow-sm hover:shadow-md transition p-4 cursor-pointer">
-
-          <img
-            [src]="getFileIcon(file.name, 'file')"
-            class="w-12 h-12 mb-2"
-          />
-
-          <p class="font-medium">
-            {{file.name}}
-          </p>
-
-          <p class="text-sm text-gray-500">
-            {{file.owner}}
-          </p>
-
+      <div class="flex items-center justify-between gap-4 mb-6">
+        <div class="flex-1 max-w-2xl">
+          <input placeholder="Search in Drive"
+            class="w-full bg-gray-100 focus:bg-white transition shadow-sm focus:shadow-md rounded-lg py-2.5 px-5 outline-none border-0" />
         </div>
 
+        <!-- Actions -->
+        <div class="flex items-center gap-4">
+
+          <!-- View Toggle -->
+          <div class="flex items-center bg-gray-100 rounded-full p-1">
+            <button (click)="setViewMode('grid')" class="p-2 rounded-full transition"
+              [class.bg-white]="viewMode === 'grid'" [class.shadow-sm]="viewMode === 'grid'" title="Grid View">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+              </svg>
+            </button>
+            <button (click)="setViewMode('list')" class="p-2 rounded-full transition"
+              [class.bg-white]="viewMode === 'list'" [class.shadow-sm]="viewMode === 'list'" title="List View">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="8" y1="6" x2="21" y2="6"></line>
+                <line x1="8" y1="12" x2="21" y2="12"></line>
+                <line x1="8" y1="18" x2="21" y2="18"></line>
+                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Logo -->
+          <img src="/assets/media/brand-logos/google-drive.svg" class="w-8 h-8" alt="Google Drive" />
+        </div>
       </div>
+      <br>
 
       <h2 class="text-lg font-semibold mb-4">
         Files
       </h2>
 
-      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+      <div
+        [class]="viewMode === 'grid' ? 'grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4' : 'flex flex-col gap-2'">
 
-        <div
-          *ngFor="let item of files"
-          class="bg-white rounded-2xl p-4 hover:shadow-md transition cursor-pointer group">
+        <div *ngFor="let item of files" class="bg-white rounded-2xl p-4 hover:shadow-md transition cursor-pointer group"
+          [class.flex]="viewMode === 'list'" [class.items-center]="viewMode === 'list'"
+          [class.gap-4]="viewMode === 'list'">
 
-          <img
-            [src]="getFileIcon(item.name, item.type)"
-            class="w-14 h-14 mb-3 transition group-hover:scale-110"
-          />
+          <img [src]="getFileIcon(item.name, item.type)" [class]="viewMode === 'grid' ? 'w-14 h-14 mb-3' : 'w-10 h-10'"
+            class="transition group-hover:scale-110" />
 
           <p class="font-medium truncate">
             {{item.name}}
@@ -124,25 +77,4 @@
   </div>
 </div>
 
-<app-footer></app-footer> -->
-
-<div class="flex min-h-screen bg-background">
-
-  <app-sidebar
-    class="kt-sidebar fixed top-0 left-0 bottom-0 w-64 z-20 hidden lg:flex flex-col bg-background border-e border-border">
-  </app-sidebar>
-
-  <div class="flex flex-col flex-1 lg:pl-64">
-
-    <app-header
-      class="kt-header fixed top-0 left-0 lg:left-64 right-0 h-16 z-10 flex items-center bg-background border-b border-border">
-    </app-header>
-
-    <main class="flex-1 pt-16 p-5 overflow-auto">
-      <router-outlet></router-outlet>
-    </main>
-
-    <app-footer></app-footer>
-
-  </div>
-</div>
+<app-footer></app-footer>
