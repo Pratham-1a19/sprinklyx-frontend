@@ -75,6 +75,7 @@
 
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 
 import { Footer } from './footer/footer';
 import { Header } from './header/header';
@@ -87,9 +88,10 @@ import { SidebarComponent } from './sidebar/sidebar';
     CommonModule,
     Header,
     Footer,
-    SidebarComponent
+    SidebarComponent,
+    RouterModule
   ],
   templateUrl: './main-layout.html',
   styleUrls: ['./main-layout.scss'],
 })
-export class MainLayoutComponent {}
+export class MainLayoutComponent { }
