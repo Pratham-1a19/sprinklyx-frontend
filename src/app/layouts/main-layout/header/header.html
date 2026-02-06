@@ -3274,7 +3274,7 @@
 						<div class="relative shrink-0">
 							<div class="kt-avatar size-9">
 								<div class="kt-avatar-image">
-									<img alt="avatar" src="/assets/media/avatars/300-2.png" />
+									<img alt="avatar" src="/assets/media/avatars/300-1.png" />
 								</div>
 								<div class="kt-avatar-indicator -end-2 -bottom-2">
 									<div class="kt-avatar-status kt-avatar-status-online size-2.5">
@@ -3508,12 +3508,16 @@
 		</div>
 		<!-- End of Apps -->
 		<!-- User -->
+		<div *ngIf="user"
+			class="flex items-center bg-gray-100 rounded-full px-4 py-2 text-sm font-medium text-gray-700">
+			{{ user.firstName }} {{ user.lastName }}
+		</div>
 		<div class="shrink-0" data-kt-dropdown="true" data-kt-dropdown-offset="10px, 10px"
 			data-kt-dropdown-offset-rtl="-20px, 10px" data-kt-dropdown-placement="bottom-end"
 			data-kt-dropdown-placement-rtl="bottom-start" data-kt-dropdown-trigger="click">
 			<div class="cursor-pointer shrink-0" data-kt-dropdown-toggle="true">
 				<img alt="" class="size-9 rounded-full border-2 border-green-500 shrink-0"
-					src="/assets/media/avatars/300-2.png" />
+					[src]="user?.photoUrl || '/assets/media/avatars/300-2.png'" />
 			</div>
 			<div class="kt-dropdown-menu w-[250px]" data-kt-dropdown-menu="true">
 				<div class="flex items-center justify-between px-2.5 py-1.5 gap-1.5">

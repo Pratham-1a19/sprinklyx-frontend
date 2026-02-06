@@ -7,5 +7,7 @@ import { Component } from '@angular/core';
   styleUrl: './client-login.component.scss'
 })
 export class ClientLoginComponent {
-
+  loginWithGoogle() {
+    window.location.href = 'http://localhost:3000/auth/google';
+  }
 }

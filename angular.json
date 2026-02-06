@@ -32,12 +32,16 @@
               }
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles.scss",
+              "public/assets/vendors/keenicons/styles.bundle.css",
+              "public/assets/css/styles.css"
             ],
             "scripts": [],
             "stylePreprocessorOptions": {
               "sass": {
-                "silenceDeprecations": ["import"]
+                "silenceDeprecations": [
+                  "import"
+                ]
               }
             }
           },
