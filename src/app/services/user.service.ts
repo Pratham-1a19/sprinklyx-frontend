@@ -29,4 +29,16 @@ export class UserService {
             observe: 'events'
         });
     }
+
+    inviteUser(email: string): Observable<any> {
+        return this.http.post('http://localhost:3000/api/team/invite', { email }, { withCredentials: true });
+    }
+
+    getTeamMembers(): Observable<any[]> {
+        return this.http.get<any[]>('http://localhost:3000/api/team/members', { withCredentials: true });
+    }
+
+    logout() {
+        window.location.href = 'http://localhost:3000/auth/logout';
+    }
 }

@@ -1,0 +1,83 @@
+<div class="h-screen flex bg-[#F8FAFD]">
+    <app-sidebar class="hidden md:block h-full"></app-sidebar>
+
+    <div class="flex-1 flex flex-col min-w-0">
+        <app-header
+            class="kt-header h-16 z-10 flex items-center bg-background border-b border-border px-6 sticky top-0">
+        </app-header>
+
+        <!-- <header app-header class="kt-header fixed top-0 z-10 start-0 end-0 flex items-stretch shrink-0 bg-background" data-kt-sticky="true" data-kt-sticky-class="border-b border-border" data-kt-sticky-name="header" id="header"></header> -->
+
+        <main class="p-6 overflow-auto flex-1">
+            <div class="card w-full max-w-4xl mx-auto bg-white shadow-sm rounded-xl">
+                <div class="card-header border-b border-gray-200 px-8 py-6">
+                    <h3 class="card-title text-xl font-bold text-gray-800">Invite Team Members</h3>
+                    <p class="text-sm text-gray-500 mt-1">Manage your team access and roles easily.</p>
+                </div>
+
+                <div class="card-body px-8 py-8">
+                    <!-- Team Members List -->
+                    <div class="mb-10">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-6">Current Members</h4>
+
+                        @if (teamMembers().length > 0) {
+                        @for (member of teamMembers(); track member.name) {
+                        <div class="flex items-center mb-7">
+                            <!-- Avatar -->
+                            <div class="symbol symbol-50px me-5 mr-4">
+                                @if (member.avatar) {
+                                <img [src]="member.avatar" [alt]="member.name"
+                                    class="w-12 h-12 rounded-full object-cover">
+                                } @else {
+                                <div
+                                    class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 font-bold text-lg">
+                                    {{ member.name.charAt(0) }}
+                                </div>
+                                }
+                            </div>
+
+                            <!-- Details -->
+                            <div class="flex flex-col">
+                                <span
+                                    class="text-gray-900 font-bold text-base hover:text-primary cursor-pointer transition-colors">{{
+                                    member.name }}</span>
+                            </div>
+                        </div>
+                        }
+                        } @else {
+                        <div class="flex flex-col items-center justify-center py-10 text-center">
+                            <div class="symbol symbol-50px mb-4">
+                                <span class="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center">
+                                    <i class="ki-filled ki-people text-3xl text-gray-300"></i>
+                                </span>
+                            </div>
+                            <h5 class="text-gray-800 font-bold text-lg mb-1">No Team Members</h5>
+                            <p class="text-gray-500 text-sm">You haven't added any team members yet.</p>
+                        </div>
+                        }
+                    </div>
+
+                    <div class="separator border-b border-gray-200 my-10"></div>
+
+                    <!-- Action Section -->
+                    <div>
+                        <h4 class="text-lg font-semibold text-gray-800 mb-4">Send Invitation</h4>
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <input type="email"
+                                class="form-control form-control-solid flex-1 p-3 border border-gray-300 rounded-full focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                                placeholder="Enter email address" [ngModel]="email()"
+                                (ngModelChange)="email.set($event)">
+
+                            <button
+                                class="btn btn-primary bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-3 rounded-full font-medium transition-colors"
+                                (click)="sendInvitation()">
+                                Send Invitation
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <app-footer></app-footer>
+    </div>
+</div>

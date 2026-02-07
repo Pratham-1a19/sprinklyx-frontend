@@ -1,10 +1,11 @@
 import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common'; // Import CommonModule
 import { UserService } from '../../../services/user.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-header',
-  imports: [CommonModule], // Add CommonModule to imports
+  imports: [CommonModule],
   standalone: true,
   templateUrl: './header.html',
   styleUrl: './header.scss',
@@ -13,8 +14,12 @@ export class Header implements OnInit {
   @Input() viewMode: 'grid' | 'list' = 'grid';
   @Output() viewModeChange = new EventEmitter<'grid' | 'list'>();
   user: any = null;
+  isProfileOpen = false;
 
-  constructor(private userService: UserService) { }
+  constructor(
+    private userService: UserService,
+    private router: Router
+  ) { }
 
   ngOnInit() {
     this.userService.getUser().subscribe({
@@ -30,5 +35,13 @@ export class Header implements OnInit {
   setViewMode(mode: 'grid' | 'list') {
     this.viewMode = mode;
     this.viewModeChange.emit(mode);
+  }
+
+  toggleProfile() {
+    this.isProfileOpen = !this.isProfileOpen;
+  }
+
+  logout() {
+    this.router.navigate(['/client-login']);
   }
 }
