@@ -71,6 +71,12 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "allowedHosts": [
+              "toney-unmoldered-nonflatulently.ngrok-free.dev"
+            ],
+            "proxyConfig": "proxy.conf.json"
+          },
           "configurations": {
             "production": {
               "buildTarget": "frontend:build:production"
@@ -108,7 +114,7 @@
               "public/assets/vendors/leaflet/leaflet.bundle.css",
               "public/assets/css/styles.css"
             ],
-            "scripts": [],
+            "scripts": []
           }
         }
       }

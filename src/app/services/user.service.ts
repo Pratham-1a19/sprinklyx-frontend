@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
     providedIn: 'root'
 })
 export class UserService {
-    private apiUrl = 'http://localhost:3000/api/user/me';
+    private apiUrl = '/api/user/me';
 
     constructor(private http: HttpClient) { }
 
@@ -15,7 +15,7 @@ export class UserService {
     }
 
     getDriveFiles(folderId: string = 'root'): Observable<any> {
-        return this.http.get(`http://localhost:3000/api/drive/files?folderId=${folderId}`, { withCredentials: true });
+        return this.http.get(`/api/drive/files?folderId=${folderId}`, { withCredentials: true });
     }
 
     uploadFile(file: File, folderId: string = 'root'): Observable<any> {
@@ -23,7 +23,7 @@ export class UserService {
         formData.append('file', file);
         formData.append('parentId', folderId);
 
-        return this.http.post('http://localhost:3000/api/drive/upload', formData, {
+        return this.http.post('/api/drive/upload', formData, {
             withCredentials: true,
             reportProgress: true,
             observe: 'events'
@@ -31,14 +31,18 @@ export class UserService {
     }
 
     inviteUser(email: string): Observable<any> {
-        return this.http.post('http://localhost:3000/api/team/invite', { email }, { withCredentials: true });
+        return this.http.post('/api/team/invite', { email }, { withCredentials: true });
     }
 
     getTeamMembers(): Observable<any[]> {
-        return this.http.get<any[]>('http://localhost:3000/api/team/members', { withCredentials: true });
+        return this.http.get<any[]>('/api/team/members', { withCredentials: true });
+    }
+
+    acceptInvitation(token: string): Observable<any> {
+        return this.http.post('/api/team/accept', { token }, { withCredentials: true });
     }
 
     logout() {
-        window.location.href = 'http://localhost:3000/auth/logout';
+        window.location.href = '/auth/logout';
     }
 }

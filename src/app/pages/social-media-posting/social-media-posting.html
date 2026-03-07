@@ -1,0 +1,210 @@
+<div class="h-screen flex bg-[#F8FAFD]">
+    <app-sidebar class="hidden md:block h-full"></app-sidebar>
+
+    <div class="flex-1 flex flex-col min-w-0">
+        <app-header
+            class="kt-header h-16 z-10 flex items-center bg-background border-b border-border px-6 sticky top-0"></app-header>
+
+        <main class="p-6 overflow-auto flex-1">
+            <div class="mb-8">
+                <div class="posting-container" style="padding: 2rem; max-width: 1000px; margin: 0 auto;">
+                    <h2>Social Media Posting</h2>
+                    <app-large-file-uploader></app-large-file-uploader>
+                </div>
+                <p class="text-gray-500 mt-1">Create, schedule, and publish posts across all your platforms.</p>
+            </div>
+
+            <div *ngIf="successMessage"
+                class="mb-6 p-4 bg-green-50 text-green-700 border border-green-200 rounded-xl flex items-center gap-3">
+                <i class="ki-outline ki-check-circle text-xl"></i>
+                <span class="font-medium">{{successMessage}}</span>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+                <!-- Left Column: Composer -->
+                <div class="lg:col-span-2 space-y-6">
+
+                    <!-- Platform Selection -->
+                    <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+                        <h2 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">1. Select
+                            Platforms</h2>
+                        <div class="flex flex-wrap gap-4">
+                            <button *ngFor="let platform of platforms" (click)="togglePlatform(platform.id)"
+                                [class]="platform.selected ? 'ring-2 ring-offset-2 ring-blue-500 bg-blue-50 border-blue-200' : 'hover:bg-gray-50 border-gray-200'"
+                                class="flex items-center gap-2 px-4 py-2 border rounded-full transition-all">
+                                <i
+                                    class="ki-outline {{platform.icon}} text-xl {{platform.selected ? platform.color : 'text-gray-500'}}"></i>
+                                <span
+                                    [class]="platform.selected ? 'font-medium text-gray-900' : 'text-gray-600'">{{platform.name}}</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Post Content -->
+                    <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+                        <h2 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">2. Compose Post
+                        </h2>
+
+                        <div class="relative">
+                            <textarea [(ngModel)]="postContent"
+                                class="w-full min-h-[160px] p-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow resize-y"
+                                placeholder="Write your post caption here... Add hashtags and mention accounts!"
+                                [maxlength]="minMaxChars"></textarea>
+                            <div class="absolute bottom-3 right-4 text-xs font-medium"
+                                [class]="characterCount > minMaxChars * 0.9 ? 'text-red-500' : 'text-gray-400'">
+                                {{characterCount}} / {{minMaxChars}}
+                            </div>
+                        </div>
+
+                        <!-- File Upload -->
+                        <div class="mt-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Media Attachments</label>
+                            <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:bg-gray-50 transition-colors cursor-pointer"
+                                (dragover)="onDragOver($event)" (drop)="onDrop($event)" (click)="fileInput.click()">
+                                <i class="ki-outline ki-cloud-add text-4xl text-gray-400 mb-3"></i>
+                                <p class="text-sm font-medium text-gray-900">Click or drag files here to upload</p>
+                                <p class="text-xs text-gray-500 mt-1">Supports Images & Videos (Max 50MB)</p>
+                                <input #fileInput type="file" multiple accept="image/*,video/*" class="hidden"
+                                    (change)="onFileChange($event)">
+                            </div>
+
+                            <!-- Uploaded Previews -->
+                            <div *ngIf="uploadedMedia.length > 0" class="flex flex-wrap gap-4 mt-4">
+                                <div *ngFor="let media of uploadedMedia; let i = index"
+                                    class="relative group w-24 h-24 rounded-lg overflow-hidden border border-gray-200">
+                                    <img *ngIf="media.type === 'image'" [src]="media.url"
+                                        class="w-full h-full object-cover">
+                                    <video *ngIf="media.type === 'video'" [src]="media.url"
+                                        class="w-full h-full object-cover"></video>
+
+                                    <div
+                                        class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                        <button (click)="removeMedia(i)"
+                                            class="p-1 bg-white/20 hover:bg-red-500 rounded-full text-white transition-colors">
+                                            <i class="ki-outline ki-trash text-sm"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Schedule Options -->
+                    <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+                        <h2 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">3. Scheduling</h2>
+
+                        <div class="flex gap-4 mb-4">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" [(ngModel)]="scheduleMode" value="now"
+                                    class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                                <span class="text-sm text-gray-700 font-medium">Post Now</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" [(ngModel)]="scheduleMode" value="schedule"
+                                    class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                                <span class="text-sm text-gray-700 font-medium">Schedule for later</span>
+                            </label>
+                        </div>
+
+                        <div *ngIf="scheduleMode === 'schedule'" class="flex gap-4 animate-fade-in">
+                            <div class="flex-1">
+                                <label class="block text-xs text-gray-500 mb-1">Date</label>
+                                <input type="date" [(ngModel)]="scheduleDate"
+                                    class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-xs text-gray-500 mb-1">Time</label>
+                                <input type="time" [(ngModel)]="scheduleTime"
+                                    class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Preview & Actions -->
+                <div class="space-y-6">
+                    <!-- Action Buttons -->
+                    <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6 flex flex-col gap-3">
+                        <button (click)="submitPost('post')" [disabled]="isSubmitting"
+                            class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl shadow-sm transition-colors flex items-center justify-center gap-2 disabled:opacity-70">
+                            <i *ngIf="!isSubmitting" class="ki-outline ki-send text-lg"></i>
+                            <i *ngIf="isSubmitting" class="ki-outline ki-loading animate-spin text-lg"></i>
+                            <span>{{ scheduleMode === 'schedule' ? 'Schedule Post' : 'Post Now' }}</span>
+                        </button>
+                        <button (click)="submitPost('draft')" [disabled]="isSubmitting"
+                            class="w-full py-3 px-4 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-medium rounded-xl transition-colors disabled:opacity-70">
+                            Save as Draft
+                        </button>
+                    </div>
+
+                    <!-- Live Preview -->
+                    <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden sticky top-24">
+                        <div class="p-4 border-b border-gray-100 bg-gray-50">
+                            <h3 class="text-sm font-semibold text-gray-900 flex items-center justify-between">
+                                Live Preview
+                                <span
+                                    class="text-xs font-normal text-gray-500 px-2 py-1 bg-white border border-gray-200 rounded-md">
+                                    {{selectedPlatforms.length > 0 ? selectedPlatforms[0].name : 'Generic'}}
+                                </span>
+                            </h3>
+                        </div>
+
+                        <!-- Preview Card -->
+                        <div class="p-5">
+                            <!-- Profile Header -->
+                            <div class="flex items-center gap-3 mb-4">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
+                                    S
+                                </div>
+                                <div>
+                                    <p class="text-sm font-bold text-gray-900">Sprinklyx Brand</p>
+                                    <p class="text-xs text-gray-500">Just now • {{selectedPlatforms.length > 0 ?
+                                        selectedPlatforms[0].name : 'Web'}}</p>
+                                </div>
+                            </div>
+
+                            <!-- Text Content -->
+                            <p class="text-sm text-gray-800 whitespace-pre-wrap mb-4"
+                                [class.text-gray-400]="!postContent">
+                                {{ postContent || 'Your post preview will appear here...' }}
+                            </p>
+
+                            <!-- Media Attachment -->
+                            <div *ngIf="uploadedMedia.length > 0"
+                                class="rounded-xl overflow-hidden border border-gray-100">
+                                <img *ngIf="uploadedMedia[0].type === 'image'" [src]="uploadedMedia[0].url"
+                                    class="w-full object-cover max-h-[250px]">
+                                <video *ngIf="uploadedMedia[0].type === 'video'" [src]="uploadedMedia[0].url"
+                                    class="w-full object-cover max-h-[250px]" controls></video>
+
+                                <div *ngIf="uploadedMedia.length > 1"
+                                    class="p-2 text-center text-xs font-medium text-gray-500 bg-gray-50 border-t border-gray-100">
+                                    + {{uploadedMedia.length - 1}} more media item(s)
+                                </div>
+                            </div>
+
+                            <!-- Mock Engagement -->
+                            <div
+                                class="flex items-center justify-between mt-4 pt-4 border-t border-gray-100 text-gray-500">
+                                <div class="flex gap-4">
+                                    <button class="hover:text-blue-500 transition-colors"><i
+                                            class="ki-outline ki-heart text-lg"></i></button>
+                                    <button class="hover:text-blue-500 transition-colors"><i
+                                            class="ki-outline ki-message-text text-lg"></i></button>
+                                    <button class="hover:text-blue-500 transition-colors"><i
+                                            class="ki-outline ki-arrows-circle text-lg"></i></button>
+                                </div>
+                                <button class="hover:text-blue-500 transition-colors"><i
+                                        class="ki-outline ki-bookmark text-lg"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+        <app-footer></app-footer>
+    </div>
+</div>

@@ -1,0 +1,26 @@
+<div class="connect-accounts-container">
+    <h2>Connect Social Accounts</h2>
+    <p class="subtitle">Link your social media profiles to enable cross-platform posting.</p>
+
+    <div *ngIf="successMessage" class="alert alert-success">
+        {{ successMessage }}
+    </div>
+    <div *ngIf="errorMessage" class="alert alert-danger">
+        {{ errorMessage }}
+    </div>
+
+    <div class="platforms-grid">
+        <div *ngFor="let platform of platforms" class="platform-card"
+            [ngClass]="{'connected': isConnected(platform.id)}">
+            <div class="platform-info">
+                <h3>{{ platform.name }}</h3>
+                <span class="status-badge" *ngIf="isConnected(platform.id)">Connected {{ getProfileName(platform.id)
+                    }}</span>
+                <span class="status-badge disconnected" *ngIf="!isConnected(platform.id)">Not Connected</span>
+            </div>
+            <button class="connect-btn" [disabled]="isConnected(platform.id)" (click)="connect(platform.id)">
+                {{ isConnected(platform.id) ? 'Connected' : 'Connect' }}
+            </button>
+        </div>
+    </div>
+</div>

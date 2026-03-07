@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { UserService } from '../../services/user.service';
 import { Header } from '../main-layout/header/header';
 import { Footer } from '../main-layout/footer/footer';
 import { SidebarComponent } from '../main-layout/sidebar/sidebar';
@@ -11,7 +13,36 @@ import { SidebarComponent } from '../main-layout/sidebar/sidebar';
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
-export class Dashboard {
+export class Dashboard implements OnInit {
+  constructor(
+    private userService: UserService,
+    private router: Router
+  ) { }
+
+  ngOnInit() {
+    this.checkPendingInvitation();
+  }
+
+  checkPendingInvitation() {
+    const token = localStorage.getItem('pendingInvitationToken');
+    if (token) {
+      this.userService.acceptInvitation(token).subscribe({
+        next: (response: any) => {
+          if (response.message.includes('Successfully joined')) {
+            alert(response.message);
+            // Optionally refresh team members list or navigate
+            window.location.reload(); // Reload to show new data if needed
+          }
+          localStorage.removeItem('pendingInvitationToken');
+        },
+        error: (err) => {
+          console.error('Failed to auto-accept invitation:', err);
+          // Don't alert error aggressively on dashboard, maybe just log
+          localStorage.removeItem('pendingInvitationToken');
+        }
+      });
+    }
+  }
   stats = [
     { title: 'Total Projects', value: '12', icon: 'folder', color: 'bg-blue-100 text-blue-600' },
     { title: 'Active Tasks', value: '45', icon: 'check-circle', color: 'bg-green-100 text-green-600' },

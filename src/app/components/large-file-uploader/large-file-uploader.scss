@@ -1,0 +1,157 @@
+.uploader-container {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);;
+
+    h3 {
+        margin-top: 0;
+        margin-bottom: 1.5rem;
+        color: #333;
+    }
+
+    .file-selection {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .custom-file-upload {
+            border: 2px dashed #ccc;
+            display: inline-block;
+            padding: 1rem 2rem;
+            cursor: pointer;
+            border-radius: 8px;
+            color: #666;
+            font-weight: 500;
+            transition: all 0.2s;
+
+            &:hover {
+                border-color: #007bff;
+                color: #007bff;
+                background: #f8f9fa;
+            }
+        }
+
+        .file-name {
+            color: #555;
+            font-size: 0.95rem;
+        }
+    }
+
+    .account-selection {
+        margin-bottom: 2rem;
+
+        h4 {
+            margin-bottom: 1rem;
+            color: #444;
+        }
+
+        .account-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+
+            .account-item {
+                padding: 0.8rem 1.2rem;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: all 0.2s;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                min-width: 120px;
+
+                &:hover {
+                    border-color: #007bff;
+                }
+
+                &.selected {
+                    border-color: #007bff;
+                    background-color: #e6f2ff;
+                    color: #0056b3;
+                }
+
+                .platform-name {
+                    font-weight: 600;
+                    margin-bottom: 0.2rem;
+                }
+
+                .profile-name {
+                    font-size: 0.8rem;
+                    color: #666;
+                }
+            }
+        }
+    }
+
+    .no-accounts {
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+        color: #666;
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: 500;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+
+    .upload-btn {
+        width: 100%;
+        padding: 1rem;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+
+        &:hover:not(:disabled) {
+            background: #0056b3;
+        }
+
+        &:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+    }
+
+    .progress-section {
+        margin-top: 2rem;
+
+        .progress-bar-container {
+            width: 100%;
+            height: 10px;
+            background: #eee;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+
+            .progress-bar {
+                height: 100%;
+                background: #28a745;
+                transition: width 0.3s ease;
+            }
+        }
+
+        .status-text {
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+        }
+    }
+}
