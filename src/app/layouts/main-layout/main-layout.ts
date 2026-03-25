@@ -5,6 +5,7 @@ import { Header } from './header/header';
 import { NgFor } from '@angular/common';
 import { SidebarComponent } from './sidebar/sidebar';
 import { UserService } from '../../services/user.service';
+import { FormsModule } from '@angular/forms';
 
 interface DriveItem {
   id: string;
@@ -23,7 +24,7 @@ interface SuggestedFile {
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [CommonModule, Footer, NgFor, Header, SidebarComponent],
+  imports: [CommonModule, FormsModule, Footer, NgFor, Header, SidebarComponent],
   templateUrl: './main-layout.html',
   styleUrls: ['./main-layout.scss'],
 })
@@ -40,16 +41,76 @@ export class MainLayoutComponent implements OnInit {
   ];
 
   files: DriveItem[] = [];
+  sharedFiles: any[] = []; // For members
+  
   isLoading = true;
   error: string | null = null;
 
   currentFolderId = 'root';
   folderHistory: string[] = [];
+  
+  // Selection
+  selectedFiles: Set<string> = new Set();
+  isSharing = false;
+  
+  // User context
+  currentUser: any;
+  isAdmin: boolean = false;
+
+  // Upload Request UI Variables
+  showRequestModal = false;
+  showPendingModal = false;
+  showTokenUploadModal = false;
+  
+  pendingRequests: any[] = [];
+  myRequests: any[] = [];
+  
+  requestForm = {
+    fileName: '',
+    fileType: 'image/jpeg',
+    platform: 'google-drive',
+    reason: ''
+  };
+
+  tokenUploadData = {
+    file: null as File | null,
+    token: ''
+  };
 
   constructor(private userService: UserService) { }
 
   ngOnInit() {
-    this.loadFiles('root');
+    this.userService.getUser().subscribe({
+      next: (user) => {
+        this.currentUser = user;
+        this.isAdmin = user.isAdmin || false;
+        
+        if (this.isAdmin) {
+          this.loadFiles('root');
+        } else {
+          this.loadSharedFiles();
+        }
+      },
+      error: () => this.error = "Failed to authenticate."
+    });
+  }
+
+  loadSharedFiles() {
+    this.isLoading = true;
+    this.error = null;
+    this.userService.getSharedFiles().subscribe({
+      next: (data) => {
+        this.sharedFiles = data;
+        this.isLoading = false;
+        if (this.sharedFiles.length === 0) {
+          this.error = 'No files have been shared with you yet.';
+        }
+      },
+      error: (err) => {
+        this.error = 'Failed to load shared files.';
+        this.isLoading = false;
+      }
+    });
   }
 
   loadFiles(folderId: string) {
@@ -79,10 +140,16 @@ export class MainLayoutComponent implements OnInit {
 
   // Navigation: Open folder or file
   openItem(item: DriveItem) {
+    if (this.selectedFiles.size > 0) {
+      this.toggleSelection(item, new Event('click'));
+      return;
+    }
+
     if (item.mimeType === 'application/vnd.google-apps.folder') {
       // Enter folder
       this.folderHistory.push(this.currentFolderId);
       this.currentFolderId = item.id;
+      this.selectedFiles.clear();
       this.loadFiles(this.currentFolderId);
     } else {
       // Open file in new tab (View/Edit)
@@ -96,27 +163,162 @@ export class MainLayoutComponent implements OnInit {
     if (this.folderHistory.length > 0) {
       const parentId = this.folderHistory.pop();
       this.currentFolderId = parentId!;
+      this.selectedFiles.clear();
       this.loadFiles(this.currentFolderId);
     }
   }
 
-  downloadFile(item: DriveItem, event: Event) {
+  toggleSelection(item: DriveItem, event: Event) {
+    event.stopPropagation();
+    if (this.selectedFiles.has(item.id)) {
+      this.selectedFiles.delete(item.id);
+    } else {
+      this.selectedFiles.add(item.id);
+    }
+  }
+
+  shareSelected() {
+    if (this.selectedFiles.size === 0) return;
+    
+    // Map selected IDs to full objects
+    const itemsToShare = this.files.filter(f => this.selectedFiles.has(f.id)).map(f => ({
+      fileId: f.id,
+      name: f.name,
+      mimeType: f.mimeType,
+      platform: 'google-drive',
+      webViewLink: f.webViewLink,
+      iconLink: f.iconLink
+    }));
+
+    this.isSharing = true;
+    this.userService.shareFiles(itemsToShare, []).subscribe({
+      next: () => {
+        alert('Files shared with team successfully!');
+        this.selectedFiles.clear();
+        this.isSharing = false;
+      },
+      error: () => {
+        alert('Failed to share files.');
+        this.isSharing = false;
+      }
+    });
+  }
+
+  // --- MEMBER UPLOAD REQUESTS ---
+  openRequestModal() {
+    this.showRequestModal = true;
+  }
+  
+  closeRequestModal() {
+    this.showRequestModal = false;
+  }
+
+  submitRequest() {
+    if(!this.requestForm.fileName) return alert("File name required");
+    this.userService.submitUploadRequest(this.requestForm).subscribe({
+      next: () => {
+        alert("Request submitted successfully!");
+        this.closeRequestModal();
+        this.loadMyRequests();
+      },
+      error: () => alert("Failed to submit request")
+    });
+  }
+
+  loadMyRequests() {
+    this.userService.getMyUploadRequests().subscribe({
+      next: (reqs) => this.myRequests = reqs
+    });
+  }
+
+  openTokenUploadModal() {
+    this.showTokenUploadModal = true;
+  }
+
+  closeTokenUploadModal() {
+    this.showTokenUploadModal = false;
+  }
+
+  onTokenFileSelected(event: any) {
+    this.tokenUploadData.file = event.target.files[0];
+  }
+
+  submitTokenUpload() {
+    if (!this.tokenUploadData.file || !this.tokenUploadData.token) return;
+    this.isLoading = true;
+    this.closeTokenUploadModal();
+    this.userService.uploadWithToken(this.tokenUploadData.file, this.tokenUploadData.token).subscribe({
+      next: (event: any) => {
+        if (event.type === 4) {
+          alert('Upload successful via token!');
+          this.isLoading = false;
+          this.loadSharedFiles();
+        }
+      },
+      error: (err) => {
+        console.error('Token upload error', err);
+        alert('Upload failed: ' + err.error?.message);
+        this.isLoading = false;
+      }
+    });
+  }
+
+  // --- ADMIN PENDING REQUESTS ---
+  openPendingModal() {
+    this.showPendingModal = true;
+    this.loadPendingRequests();
+  }
+
+  closePendingModal() {
+    this.showPendingModal = false;
+  }
+
+  loadPendingRequests() {
+    this.userService.getPendingUploadRequests().subscribe({
+      next: (reqs) => this.pendingRequests = reqs
+    });
+  }
+
+  approveRequest(id: string) {
+    this.userService.approveUploadRequest(id).subscribe({
+      next: (res) => {
+        alert(`Request approved! Token: ${res.token}`);
+        this.loadPendingRequests();
+      },
+      error: () => alert("Failed to approve")
+    });
+  }
+
+  rejectRequest(id: string) {
+    this.userService.rejectUploadRequest(id).subscribe({
+      next: () => this.loadPendingRequests(),
+      error: () => alert("Failed to reject")
+    });
+  }
+
+  downloadFile(item: DriveItem | any, event: Event, proxyDownload: boolean = false) {
     event.stopPropagation(); // Prevent opening the file
 
+    if (proxyDownload) {
+      // This is a shared file downloaded by a member via Backend Proxy
+      window.open(`/api/shared-files/download/${item._id}`, '_blank');
+      return;
+    }
+
     // 1. Direct download if available (binary files)
-    if ((item as any).webContentLink) {
-      window.open((item as any).webContentLink, '_self');
+    if (item.webContentLink) {
+      window.open(item.webContentLink, '_self');
       return;
     }
 
     // 2. Export Google Docs/Sheets/Slides
     let exportUrl = '';
     if (item.mimeType === 'application/vnd.google-apps.document') {
-      exportUrl = `https://docs.google.com/document/d/${item.id}/export?format=docx`;
+      exportUrl = `https://docs.google.com/document/d/${item.id || item.fileId}/export?format=docx`;
     } else if (item.mimeType === 'application/vnd.google-apps.spreadsheet') {
-      exportUrl = `https://docs.google.com/spreadsheets/d/${item.id}/export?format=xlsx`;
+      exportUrl = `https://docs.google.com/spreadsheets/d/${item.id || item.fileId}/export?format=xlsx`;
     } else if (item.mimeType === 'application/vnd.google-apps.presentation') {
-      exportUrl = `https://docs.google.com/presentation/d/${item.id}/export/pptx`;
+      exportUrl = `https://docs.google.com/presentation/d/${item.id || item.fileId}/export/pptx`;
     }
 
     if (exportUrl) {

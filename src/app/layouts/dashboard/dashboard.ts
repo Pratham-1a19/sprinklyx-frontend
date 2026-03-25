@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { UserService } from '../../services/user.service';
@@ -14,34 +14,54 @@ import { SidebarComponent } from '../main-layout/sidebar/sidebar';
   styleUrl: './dashboard.scss',
 })
 export class Dashboard implements OnInit {
+  onboardingSuccess = signal<string | null>(null);
+
   constructor(
     private userService: UserService,
     private router: Router
   ) { }
 
   ngOnInit() {
+    this.fetchTeamMembers();
     this.checkPendingInvitation();
+  }
+
+  fetchTeamMembers() {
+    this.userService.getTeamMembers().subscribe({
+      next: (members) => {
+        this.teamMembers.set(members);
+        // Update stats count
+        const teamStat = this.stats.find(s => s.title === 'Team Members');
+        if (teamStat) teamStat.value = members.length.toString();
+      },
+      error: (err) => {
+        console.error('Failed to load team members', err);
+      }
+    });
   }
 
   checkPendingInvitation() {
     const token = localStorage.getItem('pendingInvitationToken');
-    if (token) {
-      this.userService.acceptInvitation(token).subscribe({
-        next: (response: any) => {
-          if (response.message.includes('Successfully joined')) {
-            alert(response.message);
-            // Optionally refresh team members list or navigate
-            window.location.reload(); // Reload to show new data if needed
-          }
-          localStorage.removeItem('pendingInvitationToken');
-        },
-        error: (err) => {
-          console.error('Failed to auto-accept invitation:', err);
-          // Don't alert error aggressively on dashboard, maybe just log
+    if (!token) return;
+
+    console.log('[DASHBOARD] Checking pending invitation with token...');
+    this.userService.acceptInvitation(token).subscribe({
+      next: (response: any) => {
+        console.log('[DASHBOARD] Invitation response:', response.message);
+        if (response.message.includes('Successfully joined')) {
+          this.onboardingSuccess.set(response.message);
+          setTimeout(() => this.onboardingSuccess.set(null), 10000);
+        }
+        localStorage.removeItem('pendingInvitationToken');
+      },
+      error: (err) => {
+        console.error('[DASHBOARD] Failed to auto-accept invitation:', err);
+        // If it's an auth error, we keep the token for next time
+        if (err.status !== 401) {
           localStorage.removeItem('pendingInvitationToken');
         }
-      });
-    }
+      }
+    });
   }
   stats = [
     { title: 'Total Projects', value: '12', icon: 'folder', color: 'bg-blue-100 text-blue-600' },
@@ -57,10 +77,5 @@ export class Dashboard implements OnInit {
     { time: '2 days ago', description: 'Invited 2 new members to the team', user: 'You' }
   ];
 
-  teamMembers = [
-    { name: 'Alex Morgan', role: 'Designer', avatar: 'https://i.pravatar.cc/150?u=alex' },
-    { name: 'Sarah Jenkins', role: 'Developer', avatar: 'https://i.pravatar.cc/150?u=sarah' },
-    { name: 'Michael Chen', role: 'Manager', avatar: 'https://i.pravatar.cc/150?u=michael' },
-    { name: 'Emily Davis', role: 'Product', avatar: 'https://i.pravatar.cc/150?u=emily' }
-  ];
+  teamMembers = signal<any[]>([]);
 }

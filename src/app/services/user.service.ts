@@ -42,6 +42,54 @@ export class UserService {
         return this.http.post('/api/team/accept', { token }, { withCredentials: true });
     }
 
+    // --- Role-Based Drive Share APIs ---
+
+    getSharedFiles(): Observable<any> {
+        return this.http.get('/api/shared-files', { withCredentials: true });
+    }
+
+    shareFiles(files: any[], sharedWith: string[] = []): Observable<any> {
+        return this.http.post('/api/drive/share', { files, sharedWith }, { withCredentials: true });
+    }
+
+    revokeShare(fileId: string): Observable<any> {
+        return this.http.delete(`/api/drive/share/${fileId}`, { withCredentials: true });
+    }
+
+    // --- Token Upload Requests APIs ---
+
+    submitUploadRequest(requestData: any): Observable<any> {
+        return this.http.post('/api/upload-requests', requestData, { withCredentials: true });
+    }
+
+    getMyUploadRequests(): Observable<any[]> {
+        return this.http.get<any[]>('/api/upload-requests/me', { withCredentials: true });
+    }
+
+    getPendingUploadRequests(): Observable<any[]> {
+        return this.http.get<any[]>('/api/upload-requests/pending', { withCredentials: true });
+    }
+
+    approveUploadRequest(requestId: string): Observable<any> {
+        return this.http.post(`/api/upload-requests/${requestId}/approve`, {}, { withCredentials: true });
+    }
+
+    rejectUploadRequest(requestId: string): Observable<any> {
+        return this.http.post(`/api/upload-requests/${requestId}/reject`, {}, { withCredentials: true });
+    }
+
+    uploadWithToken(file: File, uploadToken: string): Observable<any> {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('uploadToken', uploadToken);
+
+        return this.http.post('/api/drive/upload-with-token', formData, {
+            withCredentials: true,
+            reportProgress: true,
+            observe: 'events'
+        });
+    }
+
     logout() {
         window.location.href = '/auth/logout';
     }

@@ -12,9 +12,12 @@ import { UserService } from '../../../services/user.service';
 })
 export class AcceptInviteComponent implements OnInit {
     token: string | null = null;
-    loading = signal(false);
+    loading = signal<boolean>(false);
     error = signal<string | null>(null);
     successMessage = signal<string | null>(null);
+    adminName = signal<string | null>(null);
+    isLoggedIn = signal<boolean>(false);
+    checkedAuth = signal<boolean>(false);
 
     constructor(
         private route: ActivatedRoute,
@@ -27,6 +30,29 @@ export class AcceptInviteComponent implements OnInit {
             this.token = params['token'];
             if (!this.token) {
                 this.error.set('Invalid invitation link. Token is missing.');
+            } else {
+                this.checkAuthAndJoin();
+            }
+        });
+    }
+
+    checkAuthAndJoin() {
+        this.loading.set(true);
+        this.userService.getUser().subscribe({
+            next: (user) => {
+                this.checkedAuth.set(true);
+                if (user) {
+                    this.isLoggedIn.set(true);
+                    this.joinTeam();
+                } else {
+                    this.isLoggedIn.set(false);
+                    this.loading.set(false);
+                }
+            },
+            error: () => {
+                this.checkedAuth.set(true);
+                this.isLoggedIn.set(false);
+                this.loading.set(false);
             }
         });
     }
@@ -40,15 +66,16 @@ export class AcceptInviteComponent implements OnInit {
         this.userService.acceptInvitation(this.token).subscribe({
             next: (response: any) => {
                 this.loading.set(false);
-                if (response.message.includes('Successfully joined')) {
+                if (response.message.includes('Successfully joined') || response.message.includes('already a member')) {
                     this.successMessage.set(response.message);
+                    this.adminName.set(response.adminName);
                     setTimeout(() => {
                         this.router.navigate(['/dashboard']);
-                    }, 2000);
+                    }, 4000); // Slightly longer to read the message
                 } else if (response.message.includes('Please Log In')) {
                     // Not logged in or needs login
                     localStorage.setItem('pendingInvitationToken', this.token!);
-                    alert(response.message);
+                    this.isLoggedIn.set(false);
                     this.router.navigate(['/client-login']);
                 } else {
                     // Already member or other info
