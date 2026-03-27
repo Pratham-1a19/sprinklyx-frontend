@@ -138,6 +138,11 @@ export class MainLayoutComponent implements OnInit {
     });
   }
 
+  // Admin: Integrate different Google Drive account
+  integrateDrive() {
+    window.location.href = '/api/drive/connect';
+  }
+
   // Navigation: Open folder or file
   openItem(item: DriveItem) {
     if (this.selectedFiles.size > 0) {

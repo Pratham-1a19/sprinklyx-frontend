@@ -34,10 +34,14 @@
                 </div>
 
                 <div class="flex justify-center">
-                    <div class="grid grid-cols-1 gap-2.5">
+                    <div class="grid grid-cols-1 gap-2.5 w-full">
                         <button (click)="loginWithGoogle()" class="kt-btn kt-btn-outline justify-center">
                             <img alt="" class="size-3.5 shrink-0" src="/assets/media/brand-logos/google.svg" />
                             Use Google
+                        </button>
+                        <button (click)="loginAsAdminWithGoogle()" class="kt-btn kt-btn-outline justify-center border-purple-200 hover:bg-purple-50 hover:text-purple-700">
+                            <i class="ki-outline ki-shield-tick text-lg me-1.5 text-purple-600"></i>
+                            Sign in as Admin
                         </button>
                     </div>
                 </div>

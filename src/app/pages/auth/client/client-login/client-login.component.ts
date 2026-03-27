@@ -10,4 +10,8 @@ export class ClientLoginComponent {
   loginWithGoogle() {
     window.location.href = '/auth/google';
   }
+
+  loginAsAdminWithGoogle() {
+    window.location.href = '/auth/google/admin';
+  }
 }

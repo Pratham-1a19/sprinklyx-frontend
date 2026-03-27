@@ -24,8 +24,22 @@ interface TeamMember {
 export class InvitationPage implements OnInit {
   constructor(private userService: UserService) { }
 
+  isAdmin = signal(false);
+
   ngOnInit() {
     this.fetchTeamMembers();
+    this.checkAdminRole();
+  }
+
+  checkAdminRole() {
+    this.userService.getUser().subscribe({
+      next: (user: any) => {
+        if (user && user.isAdmin) {
+          this.isAdmin.set(true);
+        }
+      },
+      error: (err: any) => console.error('Failed to check admin role', err)
+    });
   }
 
   fetchTeamMembers() {

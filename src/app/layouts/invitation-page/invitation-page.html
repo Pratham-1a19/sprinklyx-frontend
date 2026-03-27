@@ -60,7 +60,7 @@
                     <div class="separator border-b border-gray-200 my-10"></div>
 
                     <!-- Action Section -->
-                    <div>
+                    <div *ngIf="isAdmin()">
                         <h4 class="text-lg font-semibold text-gray-800 mb-4">Send Invitation</h4>
                         <div class="flex flex-col sm:flex-row gap-4">
                             <input type="email"
@@ -76,6 +76,7 @@
                         </div>
                     </div>
                 </div>
+
             </div>
         </main>
         <app-footer></app-footer>
