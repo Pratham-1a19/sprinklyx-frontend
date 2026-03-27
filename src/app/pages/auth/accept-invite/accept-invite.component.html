@@ -14,27 +14,9 @@
 
             <h2 class="text-2xl font-bold text-gray-800 mb-2">Team Invitation</h2>
             
-            <ng-container *ngIf="checkedAuth()">
-                <p class="text-gray-600 mb-8" *ngIf="isLoggedIn()">Joining your team now...</p>
-                <p class="text-gray-600 mb-8" *ngIf="!isLoggedIn()">Please log in to accept the invitation for Pratham's Team.</p>
-                
-                <button *ngIf="isLoggedIn()" (click)="joinTeam()" [disabled]="loading() || !token"
-                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center">
-                    <span *ngIf="loading()" class="mr-2">
-                        <!-- Spinner svg -->
-                        <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                    </span>
-                    {{ loading() ? 'Joining...' : 'Join Team' }}
-                </button>
-
-                <a *ngIf="!isLoggedIn()" routerLink="/client-login" class="w-full block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 text-center">
-                    Login to Join
-                </a>
-            </ng-container>
-
-            <div *ngIf="!checkedAuth()" class="flex flex-col items-center">
+            <div class="flex flex-col items-center mt-6 py-4" *ngIf="loading()">
                 <svg class="animate-spin h-8 w-8 text-blue-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                <p class="text-gray-500">Checking session...</p>
+                <p class="text-gray-500">Processing invitation securely...</p>
             </div>
         </div>
 
@@ -55,7 +37,7 @@
                 <p class="font-medium">{{ successMessage() }}</p>
                 <p *ngIf="adminName()">You have been added to the team where <span class="font-bold text-blue-600">{{ adminName() }}</span> is the admin.</p>
             </div>
-            <p class="text-sm text-gray-400">Redirecting to dashboard...</p>
+            <p class="text-sm text-gray-400 mt-4 border-t border-gray-100 pt-6">You may now safely close this tab or log into your account.</p>
         </div>
 
         <!-- Error State -->

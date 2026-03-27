@@ -74,5 +74,19 @@ export class InvitationPage implements OnInit {
       }
     });
   }
+
+  removeMember(memberId: string, memberName: string) {
+    if (confirm(`Are you sure you want to remove ${memberName} from the team?`)) {
+      this.userService.removeTeamMember(memberId).subscribe({
+        next: () => {
+          this.teamMembers.set(this.teamMembers().filter(m => m.id !== memberId));
+        },
+        error: (err: any) => {
+          console.error('Failed to remove member', err);
+          alert('Failed to remove member.');
+        }
+      });
+    }
+  }
 }
 

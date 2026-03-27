@@ -22,8 +22,13 @@ export class Dashboard implements OnInit {
   ) { }
 
   ngOnInit() {
+    const pendingToken = localStorage.getItem('pendingInvitationToken');
+    if (pendingToken) {
+      localStorage.removeItem('pendingInvitationToken');
+      window.location.href = `/accept-invite?token=${pendingToken}`;
+      return;
+    }
     this.fetchTeamMembers();
-    this.checkPendingInvitation();
   }
 
   fetchTeamMembers() {
@@ -36,30 +41,6 @@ export class Dashboard implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load team members', err);
-      }
-    });
-  }
-
-  checkPendingInvitation() {
-    const token = localStorage.getItem('pendingInvitationToken');
-    if (!token) return;
-
-    console.log('[DASHBOARD] Checking pending invitation with token...');
-    this.userService.acceptInvitation(token).subscribe({
-      next: (response: any) => {
-        console.log('[DASHBOARD] Invitation response:', response.message);
-        if (response.message.includes('Successfully joined')) {
-          this.onboardingSuccess.set(response.message);
-          setTimeout(() => this.onboardingSuccess.set(null), 10000);
-        }
-        localStorage.removeItem('pendingInvitationToken');
-      },
-      error: (err) => {
-        console.error('[DASHBOARD] Failed to auto-accept invitation:', err);
-        // If it's an auth error, we keep the token for next time
-        if (err.status !== 401) {
-          localStorage.removeItem('pendingInvitationToken');
-        }
       }
     });
   }

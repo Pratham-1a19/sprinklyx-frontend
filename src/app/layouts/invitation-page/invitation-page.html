@@ -22,26 +22,36 @@
 
                         @if (teamMembers().length > 0) {
                         @for (member of teamMembers(); track member.name) {
-                        <div class="flex items-center mb-7">
-                            <!-- Avatar -->
-                            <div class="symbol symbol-50px me-5 mr-4">
-                                @if (member.avatar) {
-                                <img [src]="member.avatar" [alt]="member.name"
-                                    class="w-12 h-12 rounded-full object-cover">
-                                } @else {
-                                <div
-                                    class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 font-bold text-lg">
-                                    {{ member.name.charAt(0) }}
+                        <div class="flex items-center mb-7 justify-between">
+                            <div class="flex items-center">
+                                <!-- Avatar -->
+                                <div class="symbol symbol-50px me-5 mr-4">
+                                    @if (member.avatar) {
+                                    <img [src]="member.avatar" [alt]="member.name"
+                                        class="w-12 h-12 rounded-full object-cover">
+                                    } @else {
+                                    <div
+                                        class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 font-bold text-lg">
+                                        {{ member.name.charAt(0) }}
+                                    </div>
+                                    }
                                 </div>
-                                }
-                            </div>
 
-                            <!-- Details -->
-                            <div class="flex flex-col">
-                                <span
-                                    class="text-gray-900 font-bold text-base hover:text-primary cursor-pointer transition-colors">{{
-                                    member.name }}</span>
+                                <!-- Details -->
+                                <div class="flex flex-col">
+                                    <span
+                                        class="text-gray-900 font-bold text-base hover:text-primary cursor-pointer transition-colors">{{
+                                        member.name }}</span>
+                                    <span class="text-gray-400 text-sm" *ngIf="member.role">{{ member.role }}</span>
+                                </div>
                             </div>
+                            
+                            <!-- Delete Action (Only for Admin to delete Members) -->
+                            <button *ngIf="isAdmin() && member.role !== 'Admin'" 
+                                (click)="removeMember(member.id, member.name)"
+                                class="btn btn-icon btn-sm btn-light-danger hover:bg-red-50 text-red-500 rounded-full w-8 h-8 flex items-center justify-center transition-colors">
+                                <i class="ki-outline ki-trash text-lg"></i>
+                            </button>
                         </div>
                         }
                         } @else {

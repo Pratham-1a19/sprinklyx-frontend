@@ -42,6 +42,10 @@ export class UserService {
         return this.http.post('/api/team/accept', { token }, { withCredentials: true });
     }
 
+    removeTeamMember(memberId: string): Observable<any> {
+        return this.http.delete(`/api/team/members/${memberId}`, { withCredentials: true });
+    }
+
     // --- Role-Based Drive Share APIs ---
 
     getSharedFiles(): Observable<any> {

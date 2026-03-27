@@ -31,28 +31,7 @@ export class AcceptInviteComponent implements OnInit {
             if (!this.token) {
                 this.error.set('Invalid invitation link. Token is missing.');
             } else {
-                this.checkAuthAndJoin();
-            }
-        });
-    }
-
-    checkAuthAndJoin() {
-        this.loading.set(true);
-        this.userService.getUser().subscribe({
-            next: (user) => {
-                this.checkedAuth.set(true);
-                if (user) {
-                    this.isLoggedIn.set(true);
-                    this.joinTeam();
-                } else {
-                    this.isLoggedIn.set(false);
-                    this.loading.set(false);
-                }
-            },
-            error: () => {
-                this.checkedAuth.set(true);
-                this.isLoggedIn.set(false);
-                this.loading.set(false);
+                this.joinTeam();
             }
         });
     }
@@ -69,32 +48,16 @@ export class AcceptInviteComponent implements OnInit {
                 if (response.message.includes('Successfully joined') || response.message.includes('already a member')) {
                     this.successMessage.set(response.message);
                     this.adminName.set(response.adminName);
-                    setTimeout(() => {
-                        this.router.navigate(['/dashboard']);
-                    }, 4000); // Slightly longer to read the message
-                } else if (response.message.includes('Please Log In')) {
-                    // Not logged in or needs login
-                    localStorage.setItem('pendingInvitationToken', this.token!);
-                    this.isLoggedIn.set(false);
-                    this.router.navigate(['/client-login']);
+                    // Stay on success screen permanently, no redirect.
                 } else {
-                    // Already member or other info
                     this.successMessage.set(response.message);
-                    setTimeout(() => {
-                        this.router.navigate(['/dashboard']);
-                    }, 3000);
                 }
             },
             error: (err) => {
                 this.loading.set(false);
                 console.error('Error accepting invite:', err);
-                // Handle specific error messages if needed
                 const msg = err.error?.message || 'Failed to accept invitation.';
-                if (msg === 'Invalid or expired invitation') {
-                    this.error.set(msg);
-                } else {
-                    this.error.set(msg);
-                }
+                this.error.set(msg);
             }
         });
     }
