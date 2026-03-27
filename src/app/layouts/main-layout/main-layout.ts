@@ -56,6 +56,7 @@ export class MainLayoutComponent implements OnInit {
   // User context
   currentUser: any;
   isAdmin: boolean = false;
+  isDriveIntegrated: boolean = false;
 
   // Upload Request UI Variables
   showRequestModal = false;
@@ -80,13 +81,25 @@ export class MainLayoutComponent implements OnInit {
   constructor(private userService: UserService) { }
 
   ngOnInit() {
+    const pendingToken = localStorage.getItem('pendingInvitationToken');
+    if (pendingToken) {
+      localStorage.removeItem('pendingInvitationToken');
+      window.location.href = `/accept-invite?token=${pendingToken}`;
+      return;
+    }
+
     this.userService.getUser().subscribe({
       next: (user) => {
         this.currentUser = user;
         this.isAdmin = user.isAdmin || false;
+        this.isDriveIntegrated = user.isDriveIntegrated || false;
         
         if (this.isAdmin) {
-          this.loadFiles('root');
+          if (this.isDriveIntegrated) {
+            this.loadFiles('root');
+          } else {
+            this.isLoading = false;
+          }
         } else {
           this.loadSharedFiles();
         }
@@ -98,6 +111,7 @@ export class MainLayoutComponent implements OnInit {
   loadSharedFiles() {
     this.isLoading = true;
     this.error = null;
+    this.currentFolderId = 'root'; // Reset context
     this.userService.getSharedFiles().subscribe({
       next: (data) => {
         this.sharedFiles = data;
@@ -108,6 +122,25 @@ export class MainLayoutComponent implements OnInit {
       },
       error: (err) => {
         this.error = 'Failed to load shared files.';
+        this.isLoading = false;
+      }
+    });
+  }
+
+  loadSharedFolderContents(folderId: string) {
+    this.isLoading = true;
+    this.error = null;
+    this.userService.getSharedFolderContents(folderId).subscribe({
+      next: (data) => {
+        this.sharedFiles = data;
+        this.isLoading = false;
+        if (this.sharedFiles.length === 0) {
+          this.error = 'This folder is empty.';
+        }
+      },
+      error: (err) => {
+        console.error('Failed to load shared folder contents.', err);
+        this.error = 'Failed to load folder contents.';
         this.isLoading = false;
       }
     });
@@ -127,7 +160,9 @@ export class MainLayoutComponent implements OnInit {
       error: (err: any) => {
         console.error('Failed to fetch Drive files', err);
         this.isLoading = false;
-        if (err.status === 401) {
+        if (err.error?.notIntegrated) {
+            this.isDriveIntegrated = false;
+        } else if (err.status === 401) {
           this.error = 'Please Sign In with Google again. Your session may have expired.';
         } else if (err.status === 404) {
           this.error = 'Folder not found or API endpoint missing.';
@@ -144,8 +179,8 @@ export class MainLayoutComponent implements OnInit {
   }
 
   // Navigation: Open folder or file
-  openItem(item: DriveItem) {
-    if (this.selectedFiles.size > 0) {
+  openItem(item: any) {
+    if (this.selectedFiles.size > 0 && this.isAdmin) {
       this.toggleSelection(item, new Event('click'));
       return;
     }
@@ -153,9 +188,14 @@ export class MainLayoutComponent implements OnInit {
     if (item.mimeType === 'application/vnd.google-apps.folder') {
       // Enter folder
       this.folderHistory.push(this.currentFolderId);
-      this.currentFolderId = item.id;
+      this.currentFolderId = item.fileId || item.id;
       this.selectedFiles.clear();
-      this.loadFiles(this.currentFolderId);
+      
+      if (this.isAdmin) {
+        this.loadFiles(this.currentFolderId);
+      } else {
+        this.loadSharedFolderContents(this.currentFolderId);
+      }
     } else {
       // Open file in new tab (View/Edit)
       if (item.webViewLink) {
@@ -169,7 +209,16 @@ export class MainLayoutComponent implements OnInit {
       const parentId = this.folderHistory.pop();
       this.currentFolderId = parentId!;
       this.selectedFiles.clear();
-      this.loadFiles(this.currentFolderId);
+      
+      if (this.isAdmin) {
+        this.loadFiles(this.currentFolderId);
+      } else {
+        if (this.currentFolderId === 'root') {
+          this.loadSharedFiles();
+        } else {
+          this.loadSharedFolderContents(this.currentFolderId);
+        }
+      }
     }
   }
 

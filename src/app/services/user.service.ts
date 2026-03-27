@@ -48,6 +48,10 @@ export class UserService {
         return this.http.get('/api/shared-files', { withCredentials: true });
     }
 
+    getSharedFolderContents(folderId: string): Observable<any> {
+        return this.http.get(`/api/shared-files/folder/${folderId}`, { withCredentials: true });
+    }
+
     shareFiles(files: any[], sharedWith: string[] = []): Observable<any> {
         return this.http.post('/api/drive/share', { files, sharedWith }, { withCredentials: true });
     }

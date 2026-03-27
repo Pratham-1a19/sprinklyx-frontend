@@ -23,13 +23,13 @@
         </div>
 
         <!-- Actions -->
-        <div class="flex items-center gap-4 flex-wrap">
+        <div class="flex items-center gap-4 flex-wrap" *ngIf="!isAdmin || isDriveIntegrated">
 
-          <!-- Integrate Drive Button (Admin only) -->
-          <button *ngIf="isAdmin" (click)="integrateDrive()"
-            class="bg-blue-600 text-white px-3 py-1.5 rounded-2xl font-medium hover:bg-blue-700 transition flex items-center gap-2 border border-blue-700">
+          <!-- Reconnect Drive Button (Admin only) -->
+          <button *ngIf="isAdmin" (click)="integrateDrive()" title="Reconnect Google Drive"
+            class="bg-blue-50 text-blue-600 px-3 py-1.5 rounded-2xl font-medium hover:bg-blue-100 transition flex items-center gap-2 border border-blue-200">
             <i class="ki-outline ki-google text-lg"></i>
-            Integrate Google Drive
+            Reconnect
           </button>
 
           <!-- Admin Upload Button -->
@@ -103,20 +103,35 @@
       </div>
       <br>
 
-      <h2 class="text-lg font-semibold mb-4">
+      <h2 class="text-lg font-semibold mb-4" *ngIf="!isAdmin || isDriveIntegrated">
         {{ isAdmin ? 'My Drive' : 'Shared with Me' }} {{ isAdmin && currentFolderId !== 'root' ? '/ ...' : '' }}
       </h2>
+
+      <!-- EMPTY STATE FOR ADMIN (Not Integrated) -->
+      <div *ngIf="isAdmin && !isLoading && !isDriveIntegrated" class="flex flex-col items-center justify-center p-12 bg-white rounded-2xl border border-gray-200 shadow-sm mt-8">
+        <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-6">
+          <img src="/assets/media/brand-logos/google-drive.svg" class="w-10 h-10" alt="Google Drive" />
+        </div>
+        <h3 class="text-2xl font-bold text-gray-900 mb-2">Google Drive not yet integrated</h3>
+        <p class="text-gray-500 text-center max-w-md mb-8">
+          Connect your Google Drive account to view, upload, and selectively share files with your team members directly from this dashboard.
+        </p>
+        <button (click)="integrateDrive()" class="bg-blue-600 text-white px-6 py-3 rounded-full font-medium hover:bg-blue-700 transition shadow-sm hover:shadow-md flex items-center gap-3 text-lg">
+          <i class="ki-outline ki-google text-xl pt-0.5"></i>
+          Integrate Google Drive
+        </button>
+      </div>
 
       <div *ngIf="isLoading" class="flex justify-center p-8 text-gray-500">
         Loading files...
       </div>
 
-      <div *ngIf="error" class="flex justify-center p-8 text-red-500 bg-red-50 rounded-lg border border-red-200">
+      <div *ngIf="error" class="flex justify-center p-8 text-red-500 bg-red-50 rounded-lg border border-red-200" [class.hidden]="!isDriveIntegrated && isAdmin">
         {{ error }}
       </div>
 
       <!-- ADMIN VIEW -->
-      <div *ngIf="isAdmin && !isLoading && !error"
+      <div *ngIf="isAdmin && isDriveIntegrated && !isLoading && !error"
         [class]="viewMode === 'grid' ? 'grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4' : 'flex flex-col gap-2'">
 
         <div *ngFor="let item of files" (click)="openItem(item)"
