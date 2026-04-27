@@ -68,25 +68,29 @@
                     </div>
 
                     <div class="separator border-b border-gray-200 my-10"></div>
-
-                    <!-- Action Section -->
-                    <div *ngIf="isAdmin()">
-                        <h4 class="text-lg font-semibold text-gray-800 mb-4">Send Invitation</h4>
-                        <div class="flex flex-col sm:flex-row gap-4">
-                            <input type="email"
-                                class="form-control form-control-solid flex-1 p-3 border border-gray-300 rounded-full focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
-                                placeholder="Enter email address" [ngModel]="email()"
-                                (ngModelChange)="email.set($event)">
-
-                            <button
-                                class="btn btn-primary bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-3 rounded-full font-medium transition-colors"
-                                (click)="sendInvitation()">
-                                Send Invitation
+                    
+                    <!-- Invite New Member Form (Admin Only) -->
+                    <div *ngIf="isAdmin()" class="mt-8">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-4">Invite a New Member</h4>
+                        <p class="text-sm text-gray-500 mb-6">Enter an email address to send an invitation link. They will be added to your team once they accept.</p>
+                        
+                        <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                            <input 
+                                type="email" 
+                                [ngModel]="email()" 
+                                (ngModelChange)="email.set($event)"
+                                placeholder="e.g. member@example.com" 
+                                class="form-control flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-100 focus:bg-white transition-all text-sm"
+                            >
+                            <button 
+                                (click)="sendInvitation()"
+                                [disabled]="!email().trim()"
+                                class="btn btn-primary bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-xl shadow-sm transition-all sm:w-auto w-full disabled:opacity-50 disabled:cursor-not-allowed">
+                                <i class="ki-outline ki-directbox-default me-2"></i> Send Invite
                             </button>
                         </div>
                     </div>
                 </div>
-
             </div>
         </main>
         <app-footer></app-footer>

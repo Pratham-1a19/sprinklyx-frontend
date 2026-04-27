@@ -23,12 +23,14 @@
     </div>
 
     <div class="no-accounts" *ngIf="accounts.length === 0">
-        <p>No social accounts connected. Please go to <a routerLink="/connect-accounts">Connect Accounts</a> first.</p>
+        <p *ngIf="isAdmin">No social accounts connected. Please go to <a routerLink="/connect-accounts">Connect Accounts</a> first.</p>
+        <p *ngIf="!isAdmin">No social accounts connected. Please ask your Team Admin to connect the appropriate platforms.</p>
     </div>
 
     <button class="upload-btn" [disabled]="!selectedFile || selectedAccountIds.length === 0 || isUploading"
         (click)="uploadFile()">
-        {{ isUploading ? 'Uploading...' : 'Post Now' }}
+        <span *ngIf="isAdmin">{{ isUploading ? 'Uploading...' : 'Publish Post Now' }}</span>
+        <span *ngIf="!isAdmin">{{ isUploading ? 'Uploading...' : 'Request Post Approval' }}</span>
     </button>
 
     <div class="progress-section" *ngIf="isUploading || jobId">

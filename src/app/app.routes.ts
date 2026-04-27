@@ -13,6 +13,7 @@ import { InvitationPage } from './layouts/invitation-page/invitation-page';
 import { Dashboard } from './layouts/dashboard/dashboard';
 import { AcceptInviteComponent } from './pages/auth/accept-invite/accept-invite.component';
 import { ConnectAccountsComponent } from './pages/connect-accounts/connect-accounts';
+import { AdminApprovalsComponent } from './pages/admin-approvals/admin-approvals';
 
 import { AuthGuard } from './auth.guard';
 
@@ -20,6 +21,8 @@ export const routes: Routes = [
     { "path": "client-login", component: ClientLoginComponent },
     { "path": "influencer-login", component: InfluencerLoginComponent },
     { "path": "super-admin-login", component: SuperAdminLoginComponent },
+    { "path": "admin-dashboard", component: Dashboard, canActivate: [AuthGuard] },
+    { "path": "member-dashboard", component: Dashboard, canActivate: [AuthGuard] },
     { "path": "dashboard", component: Dashboard, canActivate: [AuthGuard] },
     { "path": "social-media-posting", component: SocialMediaPosting, canActivate: [AuthGuard] },
     { "path": "post-scheduling", component: PostSchedulingComponent, canActivate: [AuthGuard] },
@@ -31,6 +34,7 @@ export const routes: Routes = [
     { "path": "invitation-page", component: InvitationPage, canActivate: [AuthGuard] },
     { "path": "accept-invite", component: AcceptInviteComponent },
     { "path": "connect-accounts", component: ConnectAccountsComponent, canActivate: [AuthGuard] },
+    { "path": "admin-approvals", component: AdminApprovalsComponent, canActivate: [AuthGuard] },
     { "path": "", redirectTo: "client-login", pathMatch: "full" }, // Default route
     { path: '**', redirectTo: 'client-login' } // Fallback
 ];

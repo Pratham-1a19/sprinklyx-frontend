@@ -88,21 +88,16 @@
         </label>
 
         <!-- Button -->
-        <button type="submit" class="kt-btn kt-btn-primary flex justify-center grow">
-          Sign in as Influencer
+        <button (click)="loginAsMemberWithGoogle()" type="button" class="kt-btn kt-btn-primary flex justify-center grow bg-indigo-600 hover:bg-indigo-700 w-full rounded-lg">
+            <img alt="" class="size-3.5 shrink-0 me-1.5 filter brightness-0 invert" src="/assets/media/brand-logos/google.svg" />
+            Sign in as Team Member
         </button>
 
         <!-- Navigation -->
         <div class="text-center mt-4">
-          <button type="button" class="text-sm kt-link">
-            Back to main login
+          <button type="button" class="text-sm kt-link" routerLink="/client-login">
+            Switch to Admin Login
           </button>
-
-          <div class="mt-2">
-            <button type="button" class="text-sm kt-link">
-              Super Admin Login
-            </button>
-          </div>
         </div>
 
         <!-- Features -->

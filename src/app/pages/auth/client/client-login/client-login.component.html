@@ -27,7 +27,7 @@
                         <span class="text-sm text-secondary-foreground me-1.5">
                             Need an account?
                         </span>
-                        <a class="text-sm link" href="html/demo1/authentication/branded/sign-up.html">
+                        <a class="text-sm link" href="javascript:void(0)">
                             Sign up
                         </a>
                     </div>
@@ -35,12 +35,8 @@
 
                 <div class="flex justify-center">
                     <div class="grid grid-cols-1 gap-2.5 w-full">
-                        <button (click)="loginWithGoogle()" class="kt-btn kt-btn-outline justify-center">
-                            <img alt="" class="size-3.5 shrink-0" src="/assets/media/brand-logos/google.svg" />
-                            Use Google
-                        </button>
-                        <button (click)="loginAsAdminWithGoogle()" class="kt-btn kt-btn-outline justify-center border-purple-200 hover:bg-purple-50 hover:text-purple-700">
-                            <i class="ki-outline ki-shield-tick text-lg me-1.5 text-purple-600"></i>
+                        <button (click)="loginAsAdminWithGoogle()" type="button" class="kt-btn kt-btn-outline justify-center border-purple-200 hover:bg-purple-50 hover:text-purple-700">
+                            <img alt="" class="size-3.5 shrink-0 me-1.5" src="/assets/media/brand-logos/google.svg" />
                             Sign in as Admin
                         </button>
                     </div>
@@ -68,7 +64,7 @@
                             Password
                         </label>
                         <a class="text-sm kt-link shrink-0"
-                            href="html/demo1/authentication/branded/reset-password/enter-email.html">
+                            href="javascript:void(0)">
                             Forgot Password?
                         </a>
                     </div>
@@ -98,14 +94,12 @@
                 </button>
 
                 <!-- Navigation to other login types -->
-                <!-- <div class="text-center mt-4">
+                <div class="text-center mt-4">
                     <div class="text-sm text-secondary-foreground mb-2">Other login options:</div>
                     <div class="flex gap-2 justify-center">
-                        <button type="button" class="text-sm kt-link">Influencer Login</button>
-                        <span class="text-sm text-secondary-foreground">|</span>
-                        <button type="button" class="text-sm kt-link">Super Admin</button>
+                        <button type="button" class="text-sm kt-link" routerLink="/influencer-login">Team Member Login</button>
                     </div>
-                </div> -->
+                </div>
             </form>
         </div>
     </div>

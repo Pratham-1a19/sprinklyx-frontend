@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SocialMediaService, SocialAccount } from '../../services/social-media';
+import { UserService } from '../../services/user.service';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
@@ -17,6 +18,9 @@ export class ConnectAccountsComponent implements OnInit {
 
   private socialMediaService = inject(SocialMediaService);
   private route = inject(ActivatedRoute);
+  private userService = inject(UserService);
+
+  isAdmin = false;
 
   platforms = [
     { id: 'facebook', name: 'Facebook', icon: 'facebook' },
@@ -35,6 +39,18 @@ export class ConnectAccountsComponent implements OnInit {
       }
     });
     this.fetchAccounts();
+    this.checkAdminRole();
+  }
+
+  checkAdminRole() {
+    this.userService.getUser().subscribe({
+      next: (user: any) => {
+        if (user && user.isAdmin) {
+          this.isAdmin = true;
+        }
+      },
+      error: (err: any) => console.error('Failed to check admin role', err)
+    });
   }
 
   fetchAccounts() {

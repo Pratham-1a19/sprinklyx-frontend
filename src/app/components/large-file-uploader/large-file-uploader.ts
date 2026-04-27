@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SocialMediaService, SocialAccount } from '../../services/social-media';
 import { FileUploadService } from '../../services/file-upload.service';
+import { UserService } from '../../services/user.service';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-large-file-uploader',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './large-file-uploader.html',
   styleUrls: ['./large-file-uploader.scss']
 })
@@ -26,11 +28,26 @@ export class LargeFileUploaderComponent implements OnInit {
 
   private socialMediaService = inject(SocialMediaService);
   private fileUploadService = inject(FileUploadService);
+  private userService = inject(UserService);
+
+  isAdmin = false;
 
   ngOnInit() {
     this.socialMediaService.getConnectedAccounts().subscribe({
       next: (accounts) => this.accounts = accounts,
       error: (err) => console.error('Error fetching accounts', err)
+    });
+    this.checkAdminRole();
+  }
+
+  checkAdminRole() {
+    this.userService.getUser().subscribe({
+      next: (user: any) => {
+        if (user && user.isAdmin) {
+          this.isAdmin = true;
+        }
+      },
+      error: (err: any) => console.error('Failed to check admin role', err)
     });
   }
 

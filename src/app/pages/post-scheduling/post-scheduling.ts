@@ -1,9 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SidebarComponent } from '../../layouts/main-layout/sidebar/sidebar';
 import { Header } from '../../layouts/main-layout/header/header';
 import { Footer } from '../../layouts/main-layout/footer/footer';
+import { SocialMediaService, SocialAccount } from '../../services/social-media';
+import { FileUploadService } from '../../services/file-upload.service';
 
 @Component({
   selector: 'app-post-scheduling',
@@ -12,17 +14,56 @@ import { Footer } from '../../layouts/main-layout/footer/footer';
   templateUrl: './post-scheduling.html',
   styleUrls: ['./post-scheduling.scss'],
 })
-export class PostSchedulingComponent {
+export class PostSchedulingComponent implements OnInit {
   postContent: string = '';
-  uploadedMedia: { url: string, type: 'image' | 'video', name: string }[] = [];
+  uploadedMedia: { file: File, url: string, type: 'image' | 'video', name: string }[] = [];
 
-  platforms = [
-    { id: 'facebook', name: 'Facebook', icon: 'ki-facebook', selected: false, color: 'text-blue-600', maxChars: 63206 },
-    { id: 'instagram', name: 'Instagram', icon: 'ki-instagram', selected: false, color: 'text-pink-600', maxChars: 2200 },
-    { id: 'twitter', name: 'X (Twitter)', icon: 'ki-twitter', selected: false, color: 'text-black', maxChars: 280 },
-    { id: 'linkedin', name: 'LinkedIn', icon: 'ki-linkedin', selected: false, color: 'text-blue-700', maxChars: 3000 },
-    { id: 'youtube', name: 'YouTube', icon: 'ki-youtube', selected: false, color: 'text-red-600', maxChars: 5000 }
-  ];
+  platforms: any[] = [];
+  posts: any[] = [];
+  
+  private socialMediaService = inject(SocialMediaService);
+  private fileUploadService = inject(FileUploadService);
+  private chunkSize = 5 * 1024 * 1024;
+
+  ngOnInit() {
+    this.loadPlatforms();
+    this.loadPosts();
+  }
+
+  loadPlatforms() {
+    this.socialMediaService.getConnectedAccounts().subscribe({
+      next: (accounts: SocialAccount[]) => {
+        this.platforms = accounts.map(acc => {
+          let maxChars = 280;
+          let icon = 'ki-link';
+          let color = 'text-gray-600';
+          
+          if (acc.platform === 'facebook') { maxChars = 63206; icon = 'ki-facebook'; color = 'text-blue-600'; }
+          if (acc.platform === 'linkedin') { maxChars = 3000; icon = 'ki-linkedin'; color = 'text-blue-700'; }
+          if (acc.platform === 'twitter') { maxChars = 280; icon = 'ki-twitter'; color = 'text-black'; }
+          if (acc.platform === 'youtube') { maxChars = 5000; icon = 'ki-youtube'; color = 'text-red-600'; }
+
+          return {
+            id: acc._id, // use db id
+            platformName: acc.platform,
+            name: `${acc.platform} ${acc.profileName ? '('+acc.profileName+')' : ''}`,
+            icon,
+            selected: false,
+            color,
+            maxChars
+          };
+        });
+      },
+      error: (err) => console.error('Error fetching accounts', err)
+    });
+  }
+
+  loadPosts() {
+    this.fileUploadService.getPosts().subscribe({
+      next: (posts) => this.posts = posts,
+      error: (err) => console.error('Failed to load posts', err)
+    });
+  }
 
   scheduleMode: 'now' | 'schedule' = 'now';
   scheduleDate: string = '';
@@ -79,6 +120,7 @@ export class PostSchedulingComponent {
       if (isImage || isVideo) {
         const url = URL.createObjectURL(file);
         this.uploadedMedia.push({
+          file,
           url,
           type: isImage ? 'image' : 'video',
           name: file.name
@@ -91,7 +133,12 @@ export class PostSchedulingComponent {
     this.uploadedMedia.splice(index, 1);
   }
 
-  submitPost(action: 'post' | 'draft') {
+  async submitPost(action: 'post' | 'draft') {
+    if (action === 'draft') {
+      alert("Drafts are currently not supported.");
+      return;
+    }
+
     if (!this.postContent.trim() && this.uploadedMedia.length === 0) {
       alert("Please prepare some content or upload media before posting.");
       return;
@@ -108,19 +155,61 @@ export class PostSchedulingComponent {
     this.isSubmitting = true;
     this.successMessage = null;
 
-    // Simulate API request
-    setTimeout(() => {
-      this.isSubmitting = false;
+    let scheduledDateISO = '';
+    if (this.scheduleMode === 'schedule') {
+        scheduledDateISO = new Date(`${this.scheduleDate}T${this.scheduleTime}`).toISOString();
+    }
 
-      if (action === 'draft') {
-        this.successMessage = 'Post successfully saved as draft!';
-      } else if (this.scheduleMode === 'schedule') {
-        this.successMessage = `Post scheduled for ${this.scheduleDate} at ${this.scheduleTime}!`;
-      } else {
-        this.successMessage = 'Post successfully published!';
+    try {
+      const selectedAccountIds = this.selectedPlatforms.map(p => p.id);
+      
+      // Basic post completion without media chunks if no media exists
+      let completePayload: any = {
+          uploadId: Date.now().toString() + '_' + Math.random().toString(36).substr(2, 9),
+          fileName: 'text_only_post',
+          totalChunks: 0,
+          socialAccountIds: selectedAccountIds,
+          mimeType: 'text/plain',
+          content: this.postContent,
+          scheduledDate: scheduledDateISO || undefined
+      };
+
+      if (this.uploadedMedia.length > 0) {
+          const selectedFile = this.uploadedMedia[0].file;
+          const totalChunks = Math.ceil(selectedFile.size / this.chunkSize);
+          
+          completePayload.fileName = selectedFile.name;
+          completePayload.totalChunks = totalChunks;
+          completePayload.mimeType = selectedFile.type;
+
+          for (let i = 0; i < totalChunks; i++) {
+            const start = i * this.chunkSize;
+            const end = Math.min(start + this.chunkSize, selectedFile.size);
+            const chunk = selectedFile.slice(start, end);
+
+            const formData = new FormData();
+            formData.append('chunk', chunk);
+            formData.append('uploadId', completePayload.uploadId);
+            formData.append('chunkIndex', i.toString());
+            formData.append('totalChunks', totalChunks.toString());
+            formData.append('fileName', selectedFile.name);
+            formData.append('mimeType', selectedFile.type);
+
+            await this.fileUploadService.uploadChunk(formData).toPromise();
+          }
       }
 
-      // Reset form after 3 seconds
+      await this.fileUploadService.completeUpload(completePayload).toPromise();
+      
+      if (this.scheduleMode === 'schedule') {
+        this.successMessage = `Post scheduled for ${this.scheduleDate} at ${this.scheduleTime}!`;
+      } else {
+        this.successMessage = 'Post successfully queued or published!';
+      }
+      
+      this.loadPosts(); // refresh table
+
+      // Reset form
       setTimeout(() => {
         this.successMessage = null;
         this.postContent = '';
@@ -131,6 +220,11 @@ export class PostSchedulingComponent {
         this.scheduleTime = '';
       }, 3000);
 
-    }, 1500);
+    } catch (error) {
+       alert("Error processing post.");
+       console.error(error);
+    } finally {
+       this.isSubmitting = false;
+    }
   }
 }

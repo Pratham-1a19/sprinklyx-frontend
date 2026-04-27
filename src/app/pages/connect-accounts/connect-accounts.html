@@ -1,7 +1,4 @@
-<div class="connect-accounts-container">
-    <h2>Connect Social Accounts</h2>
-    <p class="subtitle">Link your social media profiles to enable cross-platform posting.</p>
-
+<div class="connect-accounts-container p-6 w-full max-w-full">
     <div *ngIf="successMessage" class="alert alert-success">
         {{ successMessage }}
     </div>
@@ -18,9 +15,12 @@
                     }}</span>
                 <span class="status-badge disconnected" *ngIf="!isConnected(platform.id)">Not Connected</span>
             </div>
-            <button class="connect-btn" [disabled]="isConnected(platform.id)" (click)="connect(platform.id)">
+            <button *ngIf="isAdmin" class="connect-btn" [disabled]="isConnected(platform.id)" (click)="connect(platform.id)">
                 {{ isConnected(platform.id) ? 'Connected' : 'Connect' }}
             </button>
+            <span *ngIf="!isAdmin" class="text-xs text-gray-500 italic mt-2 ml-auto">
+                Admin Access Required
+            </span>
         </div>
     </div>
 </div>

@@ -15,6 +15,9 @@ import { SidebarComponent } from '../main-layout/sidebar/sidebar';
 })
 export class Dashboard implements OnInit {
   onboardingSuccess = signal<string | null>(null);
+  isAdmin = signal<boolean>(false);
+  isMismatchModalOpen = false;
+  mismatchMessage = '';
 
   constructor(
     private userService: UserService,
@@ -29,6 +32,58 @@ export class Dashboard implements OnInit {
       return;
     }
     this.fetchTeamMembers();
+    this.checkAdminRole();
+  }
+
+  checkAdminRole() {
+    this.userService.getUser().subscribe({
+      next: (user: any) => {
+        if (user) {
+          const role = user.isAdmin ? 'admin' : 'member';
+          const portal = localStorage.getItem('loginPortal');
+          const currentUrl = window.location.pathname;
+
+          // Portal Login Mismatch detection
+          if (portal === 'admin' && role === 'member') {
+            this.showMismatchModal('Team Member', 'Team Member');
+          } else if (portal === 'member' && role === 'admin') {
+            this.showMismatchModal('Admin', 'Admin');
+          }
+          localStorage.removeItem('loginPortal');
+          
+          if (user.isAdmin) {
+            this.isAdmin.set(true);
+            // Strict URL Enforcement for Admins
+            if (currentUrl.includes('/member-dashboard') || currentUrl === '/dashboard') {
+              this.router.navigate(['/admin-dashboard']);
+            }
+          } else {
+            // Strict URL Enforcement for Members
+            if (currentUrl.includes('/admin-dashboard') || currentUrl === '/dashboard') {
+              this.router.navigate(['/member-dashboard']);
+            }
+          }
+        }
+      },
+      error: (err: any) => console.error('Failed to check admin role', err)
+    });
+  }
+
+  showMismatchModal(currentRole: string, correctDashboard: string) {
+    this.mismatchMessage = `You are logged in as a ${currentRole}. Please use the ${correctDashboard} dashboard.`;
+    this.isMismatchModalOpen = true;
+  }
+
+  closeMismatchModal() {
+    this.isMismatchModalOpen = false;
+    
+    // Safety check redirect after modal
+    const currentUrl = window.location.pathname;
+    if (this.isAdmin() && currentUrl.includes('/member-dashboard')) {
+        this.router.navigate(['/admin-dashboard']);
+    } else if (!this.isAdmin() && currentUrl.includes('/admin-dashboard')) {
+        this.router.navigate(['/member-dashboard']);
+    }
   }
 
   fetchTeamMembers() {

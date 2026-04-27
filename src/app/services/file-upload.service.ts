@@ -12,11 +12,15 @@ export class FileUploadService {
         return this.http.post('/api/upload/chunk', formData, { withCredentials: true });
     }
 
-    completeUpload(payload: { uploadId: string, fileName: string, totalChunks: number, socialAccountIds: string[], mimeType: string }): Observable<any> {
+    completeUpload(payload: { uploadId: string, fileName: string, totalChunks: number, socialAccountIds: string[], mimeType: string, content?: string, scheduledDate?: string }): Observable<any> {
         return this.http.post('/api/upload/complete', payload, { withCredentials: true });
     }
 
     getJobStatus(jobId: string): Observable<any> {
         return this.http.get(`/api/upload/status/${jobId}`, { withCredentials: true });
+    }
+
+    getPosts(): Observable<any[]> {
+        return this.http.get<any[]>('/api/upload/posts', { withCredentials: true });
     }
 }

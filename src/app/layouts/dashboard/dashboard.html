@@ -8,6 +8,24 @@
 
         <!-- <header app-header class="kt-header fixed top-0 z-10 start-0 end-0 flex items-stretch shrink-0 bg-background" data-kt-sticky="true" data-kt-sticky-class="border-b border-border" data-kt-sticky-name="header" id="header"></header> -->
 
+        <!-- Role Mismatch Modal overlay -->
+        <div *ngIf="isMismatchModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm animate-fade-in">
+            <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-slide-up border border-gray-100">
+                <div class="bg-red-50 p-6 flex flex-col items-center text-center">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center text-red-500 mb-4 shadow-sm">
+                        <i class="ki-filled ki-shield-cross text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Role Mismatch Detected</h3>
+                    <p class="text-gray-600 mb-6 text-sm leading-relaxed px-4">
+                        {{ mismatchMessage }}
+                    </p>
+                    <button (click)="closeMismatchModal()" class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 rounded-xl transition-colors shadow-sm focus:ring-4 focus:ring-red-100">
+                        Continue to Dashboard
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <main class="p-6 overflow-auto flex-1">
             <!-- Onboarding Success Banner -->
             <div *ngIf="onboardingSuccess()" 
@@ -69,7 +87,7 @@
                 <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
                     <div class="flex items-center justify-between mb-6">
                         <h2 class="text-lg font-semibold text-gray-900">Team Members</h2>
-                        <button class="text-blue-600 hover:text-blue-700 text-sm font-medium">Manage</button>
+                        <button *ngIf="isAdmin()" routerLink="/invitation-page" class="text-blue-600 hover:text-blue-700 text-sm font-medium">Manage</button>
                     </div>
                     <div class="space-y-4">
                         <div *ngFor="let member of teamMembers()" class="flex items-center gap-3">
@@ -81,7 +99,8 @@
                             </div>
                         </div>
                     </div>
-                    <button
+                    <button *ngIf="isAdmin()"
+                        routerLink="/invitation-page"
                         class="w-full mt-6 py-2 px-4 border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">
                         Add Member
                     </button>
